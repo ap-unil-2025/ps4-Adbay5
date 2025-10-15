@@ -8,183 +8,84 @@ import json
 
 
 def save_to_json(data, filename):
-    """
-    Save data to a JSON file.
+    try:
+        with open(filename, "w") as f:
+            json.dump(data, f, indent=2)
+        return True  
 
-    Args:
-        data: Python data structure (list, dict, etc.)
-        filename (str): Name of file to save to
+    except (OSError, TypeError, ValueError) as e:
+        return False  
 
-    Returns:
-        bool: True if successful, False if error occurred
-
-    Example:
-        >>> data = {'name': 'Alice', 'age': 25}
-        >>> save_to_json(data, 'test.json')
-        True
-    """
-    # TODO: Implement this function
-    # Steps:
-    # 1. Open file in write mode
-    # 2. Use json.dump() to write data
-    # 3. Return True if successful
-    # 4. Use try/except to catch errors and return False
-
-    # Hint:
-    # with open(filename, 'w') as f:
-    #     json.dump(data, f, indent=2)
-    pass
 
 
 def load_from_json(filename):
-    """
-    Load data from a JSON file.
 
-    Args:
-        filename (str): Name of file to load from
+    try:
+        with open(filename, "r") as f:
+            data = json.load(f)
+        return data 
 
-    Returns:
-        Data from file if successful, None if error occurred
+    except (FileNotFoundError, json.JSONDecodeError, OSError) as e:
+        return None 
 
-    Example:
-        >>> data = load_from_json('test.json')
-        >>> data
-        {'name': 'Alice', 'age': 25}
-    """
-    # TODO: Implement this function
-    # Steps:
-    # 1. Try to open and read the file
-    # 2. Use json.load() to parse the data
-    # 3. Return the data
-    # 4. If file not found or error, return None
-
-    # Hint:
-    # with open(filename, 'r') as f:
-    #     return json.load(f)
-    pass
+   
 
 
 def save_contacts_to_file(contacts, filename="contacts.json"):
-    """
-    Save a list of contacts to a JSON file.
+    return save_to_json(contacts,filename )
 
-    Args:
-        contacts (list): List of contact dictionaries
-        filename (str): File to save to (default: contacts.json)
 
-    Returns:
-        bool: True if successful, False otherwise
-    """
-    # TODO: Implement this function
-    # Use save_to_json() to save the contacts list
-    pass
 
 
 def load_contacts_from_file(filename="contacts.json"):
-    """
-    Load contacts from a JSON file.
 
-    Args:
-        filename (str): File to load from (default: contacts.json)
+    result = load_from_json(filename)
+    if result == None :
+        return []
+    else : 
+        return result
 
-    Returns:
-        list: List of contacts, or empty list if file doesn't exist
-    """
-    # TODO: Implement this function
-    # Use load_from_json() to load contacts
-    # If None is returned (file not found), return empty list []
-    pass
-
+   
 
 def append_contact_to_file(contact, filename="contacts.json"):
-    """
-    Load existing contacts, add a new contact, and save back to file.
-
-    Args:
-        contact (dict): Contact dictionary to add
-        filename (str): File to use
-
-    Returns:
-        bool: True if successful
-    """
-    # TODO: Implement this function
-    # Steps:
-    # 1. Load existing contacts
-    # 2. Add new contact to list
-    # 3. Save updated list back to file
-    pass
+    data = load_contacts_from_file(filename)
+    data.append(contact)
+    try:
+        save_contacts_to_file(data,filename)
+        return True 
+    except (OSError, TypeError, ValueError) as e:
+        return False  
 
 
 def backup_file(source_filename, backup_filename):
-    """
-    Create a backup copy of a file.
-
-    Args:
-        source_filename (str): Original file
-        backup_filename (str): Backup file name
-
-    Returns:
-        bool: True if successful
-    """
-    # TODO: Implement this function
-    # Load data from source_filename and save to backup_filename
-    pass
-
+    backup_file = load_from_json(source_filename)
+    return save_to_json(backup_file, backup_filename)
 
 def get_file_stats(filename):
-    """
-    Get statistics about a JSON file.
-
-    Args:
-        filename (str): File to analyze
-
-    Returns:
-        dict or None: Dictionary with keys:
-            - 'exists': bool
-            - 'type': 'list' or 'dict' or 'other'
-            - 'count': number of items (if list) or keys (if dict)
-            - 'size_bytes': file size in bytes
-
-    Example:
-        >>> get_file_stats('contacts.json')
-        {'exists': True, 'type': 'list', 'count': 5, 'size_bytes': 1234}
-    """
-    # TODO: Implement this function
-    # Use os.path.exists() and os.path.getsize() (need to import os)
-    # Load the JSON data and determine its type
     import os
+    dict_stat = {}
+    data = load_from_json(filename)
 
-    # Check if file exists
-    # Get file size
-    # Load data and check type
-    # Return statistics dictionary
-    pass
+    if data == None :
+        return None
+    else :
+        dict_stat["exists"] = os.path.exists(filename)
+        data_type = ("list" if isinstance(data, list) else "dict" if isinstance(data, dict) else "other")
+        dict_stat["type"]= data_type
+        dict_stat["count"]= len(data)
+        dict_stat["size_bytes"]= os.path.getsize(filename)
+        return dict_stat
 
 
 def merge_json_files(file1, file2, output_file):
-    """
-    Merge two JSON files containing lists.
-
-    Args:
-        file1 (str): First file
-        file2 (str): Second file
-        output_file (str): Output file
-
-    Returns:
-        bool: True if successful
-
-    Example:
-        If file1.json has [1, 2, 3] and file2.json has [4, 5],
-        output_file.json will have [1, 2, 3, 4, 5]
-    """
-    # TODO: Implement this function
-    # Steps:
-    # 1. Load data from both files
-    # 2. If both are lists, combine them
-    # 3. Save combined list to output_file
-    # 4. Handle cases where files might not exist
-    pass
-
+    if not file1 or not file2 : 
+        return None
+    file_1 = load_from_json(file1)
+    file_2 = load_from_json(file2)
+    if isinstance(file_1, list) and isinstance(file_2, list):
+        list_co = file_1 + file_2
+        save_to_json(list_co, output_file)
+        return True
 
 def search_json_file(filename, key, value):
     """
@@ -203,9 +104,12 @@ def search_json_file(filename, key, value):
         search_json_file('data.json', 'name', 'Alice')
         returns [{'name': 'Alice', 'age': 25}]
     """
-    # TODO: Implement this function
-    # Load data and filter items where item[key] == value
-    pass
+
+    data = load_from_json(filename)
+    if data is None or not isinstance(data, list):
+        return []
+    results = [item for item in data if key in item and item[key] == value]
+    return results
 
 
 # Test cases

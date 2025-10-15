@@ -34,11 +34,17 @@ def find_contact_by_name(contacts, name):
 
 
 def search_contacts(contacts, search_term):
-    for i in contacts :
-        if search_term.lower() == i["phone"] or  i["name"].lower():
-            return i 
-        else :
-            return None
+    search_term = search_term.lower()
+    results = []
+    for contact in contacts:
+        if (
+            search_term in contact["name"].lower()  
+            or search_term in contact["phone"].lower()  
+            or search_term in contact["email"].lower()  
+        ):
+            results.append(contact)
+    return results
+
 
 
 
